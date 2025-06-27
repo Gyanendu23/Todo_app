@@ -53,7 +53,8 @@ A responsive, full-featured Todo application with user authentication and CRUD o
 
 ### ✅ 1. Clone the repository
 
-git clone https://github.com/Gyanendu23/todo-app.git
+git clone https://github.com/Gyanendu23/Todo_app
+.git
 cd todo-app
 
 
@@ -63,7 +64,9 @@ cd backend
 npm install
 
 Update your .env or use inline values in code:
+
 JWT_SECRET=yourJWT_secret
+
 MONGO_URI=your_mongodb_atlas_url
 
 ### ✅ 3.Start the backend server:
