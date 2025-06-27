@@ -6,10 +6,10 @@ const mongoose  = require("mongoose");
 const {z}=require("zod");
 
 const app=express();
-const JWT_SECRET="gyanenduKumarJha";
-mongoose.connect("mongodb+srv://gyanendu:oJ7lX1sTgMLgqOUc@cluster0.uzg8fm3.mongodb.net/todo_gyan_2222");
+const JWT_SECRET="";
+mongoose.connect("");
 app.get("/",function(req,res){
-    res.sendFile(__dirname+"/FrontEnd_Todo.html");
+    res.sendFile(__dirname+"/index_frontend.html");
 })
 app.use(express.json());
 app.post("/signup",async function(req,res){
