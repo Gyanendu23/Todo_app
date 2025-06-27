@@ -68,3 +68,10 @@ MONGO_URI=your_mongodb_atlas_url
 
 ### ✅ 3.Start the backend server:
 node index.js
+
+### ✅ 4. Frontend Setup
+Open the frontend/index.html file directly in your browser:
+
+#### You can just double-click it to open locally
+
+#### Or serve it using a live server extension (like in VS Code)
