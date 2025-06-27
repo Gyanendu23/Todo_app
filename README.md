@@ -57,15 +57,14 @@ git clone https://github.com/yourusername/todo-app.git
 cd todo-app
 
 
- 2. Backend Setup
+### ✅ 2. Backend Setup
 Navigate into the backend directory and install dependencies:
 cd backend
 npm install
 
 Update your .env or use inline values in code:
-
 JWT_SECRET=gyanenduKumarJha
 MONGO_URI=your_mongodb_atlas_url
 
-3.Start the backend server:
+### ✅ 3.Start the backend server:
 node index.js
