@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple Todo App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #6a11cb;
+      --secondary: #2575fc;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+      --light: #f5f5f5;
+      --dark: #333;
+      --card-bg: #ffffffee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: var(--dark);
+    }
+
+    .form-container {
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: var(--primary);
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      background: var(--secondary);
+    }
+
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 14px;
+      margin-left: 8px;
+      border-radius: 6px;
+    }
+
+    .delete-btn {
+      background-color: var(--danger);
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    .toggle-btn {
+      background-color: var(--success);
+    }
+
+    .toggle-btn:hover {
+      background-color: #27ae60;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      background-color: var(--light);
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .todo-info {
+      max-width: 70%;
+    }
+
+    .center-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      li {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      li > div:last-child {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 My Todo App</h1>
+
+    <div id="welcomeScreen">
+      <div class="center-buttons">
+        <button onclick="showForm('signup')">Create Account</button>
+        <button onclick="showForm('signin')">Log In</button>
+      </div>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="form-container hidden" id="signupForm">
+      <h2>Sign Up</h2>
+      <input type="text" id="signupName" placeholder="Full Name" />
+      <input type="email" id="signupEmail" placeholder="Email" />
+      <input type="password" id="signupPassword" placeholder="Password" />
+      <button onclick="signup()">Sign Up</button>
+      <p id="signupMessage"></p>
+    </div>
+
+    <!-- Signin Form -->
+    <div class="form-container hidden" id="signinForm">
+      <h2>Sign In</h2>
+      <input type="email" id="signinEmail" placeholder="Email" />
+      <input type="password" id="signinPassword" placeholder="Password" />
+      <button onclick="signin()">Sign In</button>
+      <p id="signinMessage"></p>
+    </div>
+
+    <!-- Todo Input -->
+    <div class="form-container hidden" id="todoForm">
+      <h2>Add Todo</h2>
+      <input type="text" id="todoTitle" placeholder="Todo Title" />
+      <label><input type="checkbox" id="todoDone" /> Mark as Done</label>
+      <button onclick="addTodo()">Add Todo</button>
+      <p id="todoMessage"></p>
+    </div>
+
+    <!-- Todo List -->
+    <div id="todosList" class="hidden">
+      <h2>Your Todos</h2>
+      <ul id="todos"></ul>
+    </div>
+
+    <!-- Logout -->
+    <div id="logoutSection" class="hidden">
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const API_URL = 'http://localhost:3000';
+
+    window.onload = () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        showTodoUI();
+        loadTodos();
+      }
+    };
+
+    function showForm(type) {
+      document.getElementById('welcomeScreen').classList.add('hidden');
+      if (type === 'signup') {
+        document.getElementById('signupForm').classList.remove('hidden');
+        document.getElementById('signinForm').classList.add('hidden');
+      } else {
+        document.getElementById('signinForm').classList.remove('hidden');
+        document.getElementById('signupForm').classList.add('hidden');
+      }
+    }
+
+    function showTodoUI() {
+      document.getElementById('welcomeScreen').classList.add('hidden');
+      document.getElementById('signupForm').classList.add('hidden');
+      document.getElementById('signinForm').classList.add('hidden');
+      document.getElementById('todoForm').classList.remove('hidden');
+      document.getElementById('todosList').classList.remove('hidden');
+      document.getElementById('logoutSection').classList.remove('hidden');
+    }
+
+    async function signup() {
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+
+      try {
+        const res = await axios.post(`${API_URL}/signup`, { name, email, password });
+        document.getElementById('signupMessage').textContent = res.data.message || "Signed up!";
+      } catch (err) {
+        document.getElementById('signupMessage').textContent = "Error: " + (err.response?.data?.message || "Signup failed");
+      }
+    }
+
+    async function signin() {
+      const email = document.getElementById('signinEmail').value;
+      const password = document.getElementById('signinPassword').value;
+
+      try {
+        const res = await axios.post(`${API_URL}/signin`, { email, password });
+        const token = res.data.toekn;
+        localStorage.setItem('token', token);
+        showTodoUI();
+        loadTodos();
+      } catch (err) {
+        document.getElementById('signinMessage').textContent = "Error: " + (err.response?.data?.message || "Signin failed");
+      }
+    }
+
+    async function addTodo() {
+      const token = localStorage.getItem('token');
+      const title = document.getElementById('todoTitle').value;
+      const done = document.getElementById('todoDone').checked;
+
+      try {
+        await axios.post(`${API_URL}/todo`, { title, done }, {
+          headers: { token }
+        });
+        document.getElementById('todoMessage').textContent = "Todo added!";
+        loadTodos();
+      } catch (err) {
+        document.getElementById('todoMessage').textContent = "Error adding todo.";
+      }
+    }
+
+    async function loadTodos() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await axios.get(`${API_URL}/todos`, {
+          headers: { token }
+        });
+
+        const todos = res.data.todos || [];
+        const ul = document.getElementById('todos');
+        ul.innerHTML = '';
+
+        todos.forEach(todo => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <div class="todo-info">
+              <strong>${todo.title}</strong> - ${todo.done ? '✅ Done' : '❌ Not Done'}
+            </div>
+            <div>
+              <button class="btn-small toggle-btn" onclick="toggleTodoDone('${todo._id}', ${todo.done})">🔁</button>
+              <button class="btn-small delete-btn" onclick="deleteTodo('${todo._id}')">🗑️</button>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+      } catch (err) {
+        console.error("Error loading todos", err);
+      }
+    }
+
+    async function toggleTodoDone(id, currentDone) {
+      const token = localStorage.getItem('token');
+      try {
+        await axios.put(`${API_URL}/todo/${id}`, {
+          done: !currentDone
+        }, {
+          headers: { token }
+        });
+        loadTodos();
+      } catch (err) {
+        alert("Failed to update todo status");
+        console.error(err);
+      }
+    }
+
+    async function deleteTodo(id) {
+      const token = localStorage.getItem('token');
+      try {
+        await axios.delete(`${API_URL}/todo/${id}`, {
+          headers: { token }
+        });
+        loadTodos();
+      } catch (err) {
+        alert("Failed to delete todo");
+        console.error(err);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      location.reload();
+    }
+  </script>
+</body>
+</html>
